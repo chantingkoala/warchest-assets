@@ -1414,13 +1414,7 @@ function hardReset() {
 }
 
 
-let messageCount = 0;
-const CONTEXT_WARN_THRESHOLD = 12; // warn after ~12 exchanges
 
-function trackMessage() {
-  messageCount++;
-  }
-}
 
 
 
@@ -1501,16 +1495,6 @@ render();
 
 window.addEventListener('resize', () => { renderMobileFooter(); });
 
-// Track interactions for context warning
-document.addEventListener('click', function(e) {
-  if (e.target.classList.contains('qty-btn') ||
-      e.target.classList.contains('nation-btn') ||
-      e.target.classList.contains('turn-tab') ||
-      e.target.classList.contains('cat-tab') ||
-      e.target.classList.contains('spin-btn')) {
-    trackMessage();
-  }
-});
 </script>
 
 <!-- MOBILE STICKY FOOTER -->
