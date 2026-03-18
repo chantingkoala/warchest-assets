@@ -30,6 +30,7 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  button, input { touch-action: manipulation; }
 
   body {
     font-family: 'Share Tech Mono', monospace;
@@ -858,6 +859,14 @@
     }
     .budget-warning { padding: 5px 12px; font-size: 10px; }
     .modal { width: 95vw; }
+
+    /* Kill translateY on mobile - causes tap target stacking issues */
+    .nation-btn, .action-btn, .save-btn,
+    .preset-load, .preset-del,
+    .cat-tab, .qty-btn {
+      transform: none !important;
+      transition: background 0.1s, box-shadow 0.1s !important;
+    }
   }
 
   /* ═══════════════════════════════════════════════════════
