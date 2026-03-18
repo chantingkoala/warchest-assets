@@ -1229,7 +1229,7 @@ function renderTurnNav() {
     const effIpc = effectiveIpc(currentNation, t);
     const spent = spentIpc(currentNation, t);
     const left = effIpc - spent;
-    return `<div class="turn-tab${t===currentTurn?' active':''}" onclick="switchTurn(${t})">
+    return `<div class="turn-tab${t===currentTurn?' active':''}" data-turn="${t}">
       <div class="turn-label">Turn ${t+1}</div>
       <div class="turn-sub">${effIpc}/${NATIONS[currentNation].ipc[t]} IPC · ${totalUnits(currentNation,t)}u</div>
     </div>`;
@@ -1268,7 +1268,6 @@ function renderUnitTable() {
       const movDisplay = u.mov === '-' ? '<span style="color:var(--text3)">—</span>' : `<span class="stat-mov">${u.mov}</span>`;
       const efficiency = u.atk !== '-' ? (u.atk / u.cost).toFixed(2) + ' atk/IPC' : '—';
       const plusDisabled = !canAfford ? ' disabled' : '';
-      const plusClick = canAfford ? `onclick="changeQty('${u.id}',1)"` : '';
       const imgUrl = getUnitImg(u.id);
       const iconHtml = imgUrl
         ? `<img src="${imgUrl}" alt="${u.name}" loading="lazy" onerror="this.style.display='none';this.parentNode.textContent='${u.icon}'">`
@@ -1284,9 +1283,9 @@ function renderUnitTable() {
         <div class="unit-stat" style="text-align:center">${movDisplay}</div>
         <div class="unit-cost">${u.cost}</div>
         <div class="purchase-ctrl">
-          <button class="qty-btn qty-minus${qty===0?' dim':''}" onclick="changeQty('${u.id}',-1)">−</button>
+          <button class="qty-btn qty-minus${qty===0?' dim':''}" data-action="minus" data-id="${u.id}">−</button>
           <span class="qty-display">${qty}</span>
-          <button class="qty-btn qty-plus${plusDisabled}" ${plusClick}>+</button>
+          <button class="qty-btn qty-plus${plusDisabled}" data-action="plus" data-id="${u.id}">+</button>
         </div>
       </div>`;
     }).join('');
@@ -1329,7 +1328,7 @@ function renderAllTurns() {
     const detail = units > 0
       ? `${units} units · ${spent} IPC<span class="tsc-clear" onclick="clearTurn(event,${t})">clear</span>`
       : 'nothing planned';
-    return `<div class="turn-summary-card${t===currentTurn?' active':''}" onclick="switchTurn(${t})">
+    return `<div class="turn-summary-card${t===currentTurn?' active':''}" data-turn="${t}">
       <div class="tsc-header"><span class="tsc-turn">Turn ${t+1}</span><span class="tsc-left ${lCls}">${left} left</span></div>
       <div class="tsc-detail">${detail}</div></div>`;
   }).join('');
@@ -1503,6 +1502,26 @@ document.body.className = 'nation-' + currentNation;
 render();
 
 window.addEventListener('resize', () => { renderMobileFooter(); });
+// Delegated event listeners - fixes mobile multi-tap bug
+document.getElementById('unitTable').addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-action]');
+  if (!btn || btn.classList.contains('disabled') || btn.classList.contains('dim')) return;
+  const id = btn.dataset.id;
+  if (btn.dataset.action === 'minus') changeQty(id, -1);
+  if (btn.dataset.action === 'plus') changeQty(id, 1);
+});
+
+document.getElementById('turnNav').addEventListener('click', function(e) {
+  const tab = e.target.closest('[data-turn]');
+  if (tab) switchTurn(parseInt(tab.dataset.turn));
+});
+
+document.getElementById('allTurnsSummary').addEventListener('click', function(e) {
+  if (e.target.classList.contains('tsc-clear')) return;
+  const card = e.target.closest('[data-turn]');
+  if (card) switchTurn(parseInt(card.dataset.turn));
+});
+
 
 </script>
 
